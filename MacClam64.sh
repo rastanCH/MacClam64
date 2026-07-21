@@ -42,7 +42,7 @@ fi
 
 # 2. Install System Dependencies via Homebrew
 echo "📦 Installing dependencies (fswatch, cmake, check, json-c)..."
-brew install fswatch cmake check json-c || { echo "Error installing dependencies"; exit 1; }
+brew install fswatch cmake check json-c pcre2 || { echo "Error installing dependencies"; exit 1; }
 
 # 3. Setup Directories
 INSTALL_DIR="$HOME/MacClam64"
