@@ -11,16 +11,33 @@ set -e # Stop on critical error
 echo "🛡️  Installing MacClam64 for Apple Silicon (ARM64)..."
 echo "---------------------------------------------------------"
 
-# 1. Prerequisites Check
+# 1. Prerequisites Check & Auto-Install Homebrew
 if ! command -v brew &> /dev/null; then
-    echo "❌ Homebrew is not installed. Please install it first: https://brew.sh"
-    exit 1
-fi
+    echo "🍺 Homebrew is not installed."
+    echo "🚀 Starting automatic installation..."
+    echo "   (Press Ctrl+C within the next few seconds to cancel and install manually)"
+    sleep 4 # Short delay to allow time to read and cancel if necessary
+    
+    # Launch of the official Homebrew installer
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    
+    # CRITICAL CHECK: On Apple Silicon, Homebrew installs to /opt/homebrew.
+    # We must add it to the PATH for the current session immediately.
+    if [ -f /opt/homebrew/bin/brew ]; then
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+    elif [ -f /usr/local/bin/brew ]; then
+        eval "$(/usr/local/bin/brew shellenv)"
+    fi
 
-if ! command -v xcode-select &> /dev/null; then
-    echo "🔨 Installing Xcode Command Line Tools..."
-    xcode-select --install
-    sleep 5
+    # Final verification
+    if ! command -v brew &> /dev/null; then
+        echo "❌ ERROR: Homebrew installation failed or PATH not updated."
+        echo "   Please install Homebrew manually from https://brew.sh and re-run this script."
+        exit 1
+    fi
+    echo "✅ Homebrew installed and configured successfully."
+else
+    echo "✅ Homebrew is already installed."
 fi
 
 # 2. Install System Dependencies via Homebrew
