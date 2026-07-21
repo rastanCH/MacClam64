@@ -161,7 +161,9 @@ mkdir -p "$HOME/Library/LaunchAgents"
 
 # 8. Install Launchd Services
 echo "🚀 Installing automatic startup services..."
-LAUNCH_DIR="$HOME/Library/LaunchAgents"
+
+# Ensure LaunchAgents directory exists
+mkdir -p "$HOME/Library/LaunchAgents"
 
 # ClamD Agent
 cat > "$LAUNCH_DIR/com.macclam64.clamd.plist" <<EOFPLIST
@@ -212,30 +214,35 @@ cat > "$LAUNCH_DIR/com.macclam64.fswatch.plist" <<EOFPLIST
 </plist>
 EOFPLIST
 
+# Load services
 launchctl unload "$LAUNCH_DIR/com.macclam64.clamd.plist" 2>/dev/null || true
 launchctl load "$LAUNCH_DIR/com.macclam64.clamd.plist"
 launchctl unload "$LAUNCH_DIR/com.macclam64.fswatch.plist" 2>/dev/null || true
 launchctl load "$LAUNCH_DIR/com.macclam64.fswatch.plist"
 
 echo ""
-echo "✅ Installation successful!"
-echo "---------------------------------------------------------"
-echo "🛡️  MacClam64 is now active in the background."
-echo "📂  Suspicious files will be moved to: $INSTALL_DIR/quarantine"
+echo "✅ Installation completed successfully!"
+echo "=========================================================="
+echo "🛡️  MacClam64 is installed and running in the background."
 echo ""
-echo "⚠️  IMPORTANT: To prevent access pop-ups, please grant 'Full Disk Access':"
-echo "   1. Go to System Settings > Privacy & Security > Full Disk Access"
-echo "   2. Add: $INSTALL_PREFIX/bin/clamdscan"
-echo "   3. Add: /opt/homebrew/bin/fswatch (or the fswatch binary path)"
-echo "   4. Restart the services or your Mac."
+echo "⚠️  CRITICAL STEP REQUIRED FOR REAL-TIME PROTECTION:"
+echo "   macOS blocks unknown apps from scanning your files by default."
+echo "   You MUST grant 'Full Disk Access' to stop pop-ups and enable scanning:"
 echo ""
-echo "🧪 Running quick test (EICAR)..."
-echo 'X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*' > ~/Downloads/eicar_test_macclam64.com
-echo "Waiting 5 seconds..."
-sleep 5
-if [ ! -f ~/Downloads/eicar_test_macclam64.com ]; then
-    echo "🎉 SUCCESS: Test file captured and quarantined!"
-    ls -l "$INSTALL_DIR/quarantine/" | grep eicar
-else
-    echo "⚠️  Test file still present. Check logs in $INSTALL_DIR/log/ or grant Full Disk Access."
-fi
+echo "   1. Open System Settings > Privacy & Security > Full Disk Access"
+echo "   2. Click the '+' button and add these two files:"
+echo "      • $INSTALL_PREFIX/bin/clamdscan"
+echo "      • /opt/homebrew/bin/fswatch"
+echo "      (If fswatch is not found there, run 'which fswatch' in Terminal to find its path)"
+echo "   3. Toggle the switches to ON for both."
+echo ""
+echo "🧪 HOW TO TEST IF IT WORKS:"
+echo "   Once you have granted permissions, run this command in Terminal:"
+echo "   echo 'X5O!P%@AP[4\PZX54(P^)7CC)7}\$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!\$H+H*' > ~/Downloads/eicar_test.com"
+echo ""
+echo "   If protection is active, the file will disappear from Downloads instantly!"
+echo "   Check ~/MacClam64/quarantine/ to see it."
+echo ""
+echo "📂 Quarantine folder: $INSTALL_DIR/quarantine"
+echo "📄 Logs folder: $INSTALL_DIR/log"
+echo "=========================================================="
