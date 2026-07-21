@@ -28,6 +28,12 @@ Open your Terminal and run the following command:
 curl -fsSL https://raw.githubusercontent.com/rastanCH/MacClam64/main/MacClam64.sh | bash
 ```
 Note: You may need to enter your administrator password to install Homebrew dependencies.
+### Note for macOS Users:
+If the automatic Homebrew installation fails with a "sudo access" error, please install Homebrew manually first by running:
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+Then re-run the MacClam64 installation command.
 
 ## Critical Step: Full Disk Access
 
