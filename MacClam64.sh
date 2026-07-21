@@ -162,8 +162,11 @@ mkdir -p "$HOME/Library/LaunchAgents"
 # 8. Install Launchd Services
 echo "🚀 Installing automatic startup services..."
 
+# Define the Launch directory
+LAUNCH_DIR="$HOME/Library/LaunchAgents"
+
 # Ensure LaunchAgents directory exists
-mkdir -p "$HOME/Library/LaunchAgents"
+mkdir -p "$LAUNCH_DIR"
 
 # ClamD Agent
 cat > "$LAUNCH_DIR/com.macclam64.clamd.plist" <<EOFPLIST
