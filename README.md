@@ -42,7 +42,7 @@ Upon first run, macOS may block the scanner and show pop-ups asking for permissi
 1. Go to System Settings > Privacy & Security > Full Disk Access.
 2. Click the « + » button and add the following binaries:
 	- ~/MacClam64/opt/bin/clamdscan
-	- /opt/homebrew/bin/fswatch (or the path to your fswatch binary)
+	- /opt/homebrew/bin/fswatch (or the path to your fswatch binary; to see ```/opt/``` folder, go to "Macintosh HD" disk, then Maj+Cmd+.)
 3. Toggle the switch to ON for both.
 4. Restart the services (or reboot your Mac):
 ```bash
@@ -52,10 +52,14 @@ launchctl load ~/Library/LaunchAgents/com.macclam64.*.plist
 Once done, no more pop-ups will appear.
 
 ## Verification
-The installer automatically runs a test using the harmless EICAR test file.
-
+The installer does not run the test automatically because **Full Disk Access** permissions are required first.
+Once you have granted permissions, run this command in Terminal:
+```bash
+echo 'X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*' > ~/Downloads/eicar_test.com
+```
 - If ```eicar_test_macclam64.com``` disappears from your ```Downloads``` folder, it works!
 - Check ```~/MacClam64/quarantine/``` to see the captured file.
+- IF the file remains, check the logs in ```~/MacClam64/log/```or verify Full Disk Access settings.
 
 ## Useful Commands
 ### Manually update virus definitions:
