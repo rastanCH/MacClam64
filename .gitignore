@@ -1,0 +1,21 @@
+# --- Compiled binaries and sources (Too large for GitHub) ---
+src/
+opt/
+
+# --- User data and logs (Private) ---
+quarantine/
+log/*.log
+log/*.err
+log/*.tmp
+
+# --- macOS system files ---
+.DS_Store
+._*
+.AppleDouble
+.LSOverride
+
+# --- Temporary files ---
+*.tmp
+*.swp
+*~
+*.bak
