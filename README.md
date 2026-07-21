@@ -31,7 +31,7 @@ Note: You may need to enter your administrator password to install Homebrew depe
 ### Note for macOS Users:
 If the automatic Homebrew installation fails with a "sudo access" error, please install Homebrew manually first by running:
 ```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh
 ```
 Then re-run the MacClam64 installation command.
 
