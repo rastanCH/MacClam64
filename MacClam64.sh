@@ -128,7 +128,14 @@ echo "📥 Updating virus definitions..."
 "$INSTALL_PREFIX/bin/freshclam" --config-file="$CONF_DIR/freshclam.conf" || echo "⚠️  Update failed (check connection), but installation continues."
 
 # 7. Create Monitoring Scripts
-echo "👁️  Creating monitoring scripts..."
+# Detect fswatch path (Homebrew or local build)
+FSWATCH_PATH=$(which fswatch)
+if [ -z "$FSWATCH_PATH" ]; then
+    FSWATCH_PATH="$INSTALL_PREFIX/bin/fswatch" # Fallback to local if not in PATH
+fi
+
+echo "👁️  Creating monitoring scripts (using fswatch at: $FSWATCH_PATH)..."
+
 cat > "$INSTALL_DIR/scaniffile" <<'EOFSCRIPT'
 #!/bin/bash
 FILE="$1"
@@ -139,10 +146,10 @@ fi
 EOFSCRIPT
 chmod +x "$INSTALL_DIR/scaniffile"
 
-cat > "$INSTALL_DIR/start_monitoring.sh" <<'EOFMONITOR'
+cat > "$INSTALL_DIR/start_monitoring.sh" <<EOFMONITOR
 #!/bin/bash
 cd "$HOME"
-"$HOME/MacClam64/opt/bin/fswatch" -E \
+"$FSWATCH_PATH" -E \
   -e "$HOME/MacClam64/quarantine" \
   -e "$HOME/MacClam64/log" \
   "$HOME" "/Applications" | while read line; do "$HOME/MacClam64/scaniffile" "$line"; done
