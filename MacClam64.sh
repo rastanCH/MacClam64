@@ -113,12 +113,15 @@ if [ ! -f "$CONF_DIR/clamd.conf" ]; then
 fi
 
 if [ ! -f "$CONF_DIR/freshclam.conf" ]; then
-    cp "$CONF_DIR/freshclam.conf.sample" "$CONF_DIR/freshclam.conf"
-    sed -i '' 's/^Example/#Example/' "$CONF_DIR/freshclam.conf"
-    echo "LogFile $INSTALL_DIR/log/freshclam.log" >> "$CONF_DIR/freshclam.conf"
-    echo "LogTime yes" >> "$CONF_DIR/freshclam.conf"
-    echo "DatabaseDirectory $DATA_DIR" >> "$CONF_DIR/freshclam.conf"
-    echo "DatabaseMirror database.clamav.net" >> "$CONF_DIR/freshclam.conf"
+    # Create a minimal, robust freshclam.conf to avoid parsing errors
+    cat > "$CONF_DIR/freshclam.conf" <<EOF
+DatabaseDirectory $DATA_DIR
+LogTime yes
+NotifyClamd $CONF_DIR/clamd.conf
+DatabaseMirror database.clamav.net
+EOF
+    # Set correct permissions
+    chmod 644 "$CONF_DIR/freshclam.conf"
 fi
 
 echo "📥 Updating virus definitions..."
@@ -145,6 +148,9 @@ cd "$HOME"
   "$HOME" "/Applications" | while read line; do "$HOME/MacClam64/scaniffile" "$line"; done
 EOFMONITOR
 chmod +x "$INSTALL_DIR/start_monitoring.sh"
+
+# Ensure LaunchAgents directory exists
+mkdir -p "$HOME/Library/LaunchAgents"
 
 # 8. Install Launchd Services
 echo "🚀 Installing automatic startup services..."
