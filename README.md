@@ -2,7 +2,7 @@
 
 **Open-source real-time antivirus for macOS on Apple Silicon (M1, M2, M3, M4), powered by [ClamAV](http://www.clamav.net/).**
 
-This project compiles ClamAV natively for ARM64 architecture, configures real-time monitoring via `fswatch`, and installs system services (`launchd`) for automatic protection at startup. No Terminal window needs to stay open.
+This project compiles ClamAV natively for ARM64 architecture, configures real-time monitoring via `fswatch`, and installs system services (`launchd`) for automatic protection and up-to-date virus definitions (`freshclam`) at startup. No Terminal window needs to stay open.
 
 > **Origin Story:** This is a modern revival of the *Non-Graphical ClamAV Antivirus Solution for Mac OS X* originally written by [killdash9](https://github.com/killdash9/MacClam). As the original project (written in 2015 for Intel Macs) failed to compile on Apple Silicon, **MacClam64** was created as a free, open-source, and native alternative to ClamXAV.
 
