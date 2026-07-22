@@ -160,7 +160,7 @@ cat > "$INSTALL_DIR/full_scan.sh" <<'EOFFULLSCAN'
 INSTALL_PREFIX="$HOME/MacClam64/opt"
 echo "🔎 Running full scan of $HOME and /Applications (this can take a while)..."
 "$INSTALL_PREFIX/bin/clamdscan" --config-file="$INSTALL_PREFIX/etc/clamd.conf" \
-  --move="$HOME/MacClam64/quarantine" -r "$HOME" "/Applications"
+  --move="$HOME/MacClam64/quarantine" "$HOME" "/Applications"
 EOFFULLSCAN
 chmod +x "$INSTALL_DIR/full_scan.sh"
 
