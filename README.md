@@ -16,6 +16,7 @@ When a file changes, it is immediately sent to `clamd` for scanning. Periodic fu
 ### Features
 - **100% Native ARM64**: Compiled from source specifically for Apple Silicon chips.
 - **Real-Time Monitoring**: Automatically watches `~/` (Home) and `/Applications` folders.
+- **Auto-Updating Definitions**: `freshclam` runs on a `launchd` timer (every 2 hours) to keep virus signatures current.
 - **Automatic Quarantine**: Threats are instantly moved to a safe folder (`~/MacClam64/quarantine`).
 - **Silent Operation**: Runs in the background via `launchd`. No persistent Terminal window required.
 - **Privacy First**: No cloud uploads, everything stays local. Open-source.
@@ -70,10 +71,17 @@ echo 'X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*' > ~/
 ```
 ~/MacClam64/opt/bin/clamdscan --config-file=~/MacClam64/opt/etc/clamd.conf /path/to/folder
 ```
+### Run a baseline scan (recommended once, after granting Full Disk Access):
+Real-time monitoring only catches files created or modified after it starts. Run this once to scan what's already on disk:
+```
+~/MacClam64/full_scan.sh
+```
+
 ### Uninstall:
 ```
 launchctl unload ~/Library/LaunchAgents/com.macclam64.clamd.plist
 launchctl unload ~/Library/LaunchAgents/com.macclam64.fswatch.plist
+launchctl unload ~/Library/LaunchAgents/com.macclam64.freshclam.plist
 rm -rf ~/MacClam64 ~/Library/LaunchAgents/com.macclam64.*
 ```
 

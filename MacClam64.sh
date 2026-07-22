@@ -41,8 +41,8 @@ else
 fi
 
 # 2. Install System Dependencies via Homebrew
-echo "📦 Installing dependencies (fswatch, cmake, check, json-c)..."
-brew install fswatch cmake check json-c pcre2 || { echo "Error installing dependencies"; exit 1; }
+echo "📦 Installing dependencies (fswatch, cmake, json-c, pcre2)..."
+brew install fswatch cmake json-c pcre2 || { echo "Error installing dependencies"; exit 1; }
 
 # 3. Setup Directories
 INSTALL_DIR="$HOME/MacClam64"
@@ -103,14 +103,20 @@ echo "⚙️  Configuring ClamAV..."
 CONF_DIR="$INSTALL_PREFIX/etc"
 DATA_DIR="$INSTALL_PREFIX/share/clamav"
 
+CLAMD_SOCKET="$INSTALL_DIR/clamd.socket"
+
 if [ ! -f "$CONF_DIR/clamd.conf" ]; then
     cp "$CONF_DIR/clamd.conf.sample" "$CONF_DIR/clamd.conf"
     sed -i '' 's/^Example/#Example/' "$CONF_DIR/clamd.conf"
     echo "LogFile $INSTALL_DIR/log/clamd.log" >> "$CONF_DIR/clamd.conf"
     echo "LogTime yes" >> "$CONF_DIR/clamd.conf"
-    echo "LocalSocket /tmp/clamd.socket" >> "$CONF_DIR/clamd.conf"
+    echo "LocalSocket $CLAMD_SOCKET" >> "$CONF_DIR/clamd.conf"
     echo "ExcludePath $INSTALL_DIR/quarantine" >> "$CONF_DIR/clamd.conf"
+    echo "ExcludePath $SRC_DIR" >> "$CONF_DIR/clamd.conf"
 fi
+
+# Keep the install directory (and the clamd socket within it) private to the owner
+chmod 700 "$INSTALL_DIR"
 
 if [ ! -f "$CONF_DIR/freshclam.conf" ]; then
     # Create a minimal, robust freshclam.conf to avoid parsing errors
@@ -146,13 +152,26 @@ fi
 EOFSCRIPT
 chmod +x "$INSTALL_DIR/scaniffile"
 
+cat > "$INSTALL_DIR/full_scan.sh" <<'EOFFULLSCAN'
+#!/bin/bash
+# Baseline scan of already-existing files. Real-time monitoring only sees
+# files created/modified AFTER it starts, so run this once (and whenever
+# you want a full sweep) to catch anything already on disk.
+INSTALL_PREFIX="$HOME/MacClam64/opt"
+echo "🔎 Running full scan of $HOME and /Applications (this can take a while)..."
+"$INSTALL_PREFIX/bin/clamdscan" --config-file="$INSTALL_PREFIX/etc/clamd.conf" \
+  --move="$HOME/MacClam64/quarantine" -r "$HOME" "/Applications"
+EOFFULLSCAN
+chmod +x "$INSTALL_DIR/full_scan.sh"
+
 cat > "$INSTALL_DIR/start_monitoring.sh" <<EOFMONITOR
 #!/bin/bash
 cd "$HOME"
 "$FSWATCH_PATH" -E \
   -e "$HOME/MacClam64/quarantine" \
   -e "$HOME/MacClam64/log" \
-  "$HOME" "/Applications" | while read line; do "$HOME/MacClam64/scaniffile" "$line"; done
+  -e "$HOME/MacClam64/src" \
+  "$HOME" "/Applications" | while IFS= read -r line; do "$HOME/MacClam64/scaniffile" "$line"; done
 EOFMONITOR
 chmod +x "$INSTALL_DIR/start_monitoring.sh"
 
@@ -217,11 +236,38 @@ cat > "$LAUNCH_DIR/com.macclam64.fswatch.plist" <<EOFPLIST
 </plist>
 EOFPLIST
 
+# Freshclam Agent (keeps virus definitions up to date, at load and every day)
+cat > "$LAUNCH_DIR/com.macclam64.freshclam.plist" <<EOFPLIST
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.macclam64.freshclam</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>$INSTALL_PREFIX/bin/freshclam</string>
+        <string>--config-file=$CONF_DIR/freshclam.conf</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>StartInterval</key>
+    <integer>86400</integer>
+    <key>StandardOutPath</key>
+    <string>$INSTALL_DIR/log/freshclam-launchd.log</string>
+    <key>StandardErrorPath</key>
+    <string>$INSTALL_DIR/log/freshclam-launchd.err</string>
+</dict>
+</plist>
+EOFPLIST
+
 # Load services
 launchctl unload "$LAUNCH_DIR/com.macclam64.clamd.plist" 2>/dev/null || true
 launchctl load "$LAUNCH_DIR/com.macclam64.clamd.plist"
 launchctl unload "$LAUNCH_DIR/com.macclam64.fswatch.plist" 2>/dev/null || true
 launchctl load "$LAUNCH_DIR/com.macclam64.fswatch.plist"
+launchctl unload "$LAUNCH_DIR/com.macclam64.freshclam.plist" 2>/dev/null || true
+launchctl load "$LAUNCH_DIR/com.macclam64.freshclam.plist"
 
 echo ""
 echo "✅ Installation completed successfully!"
@@ -246,6 +292,12 @@ echo ""
 echo "   If protection is active, the file will disappear from Downloads instantly!"
 echo "   Check ~/MacClam64/quarantine/ to see it."
 echo ""
+echo "🔎 BASELINE SCAN:"
+echo "   Real-time monitoring only catches files created/modified from now on."
+echo "   Once Full Disk Access is granted, run this once to scan what's already on disk:"
+echo "   ~/MacClam64/full_scan.sh"
+echo ""
 echo "📂 Quarantine folder: $INSTALL_DIR/quarantine"
 echo "📄 Logs folder: $INSTALL_DIR/log"
+echo "🔄 Virus definitions auto-update every day via launchd."
 echo "=========================================================="
