@@ -1,8 +1,8 @@
 # 🛡️ MacClam64
 
-**Open-source real-time antivirus for macOS on Apple Silicon (M1, M2, M3, M4, etc.), powered by [ClamAV](http://www.clamav.net/).**
+**Open-source real-time antivirus for macOS on Apple Silicon (M1, M2, M3, M4), powered by [ClamAV](http://www.clamav.net/).**
 
-This project compiles ClamAV natively for ARM64 architecture, configures real-time monitoring via `fswatch`, and installs system services (`launchd`) for automatic protection at startup and up-to-date virus definitions (`freshclam`). No Terminal window needs to stay open.
+This project compiles ClamAV natively for ARM64 architecture, configures real-time monitoring via `fswatch`, and installs system services (`launchd`) for automatic protection at startup. No Terminal window needs to stay open.
 
 > **Origin Story:** This is a modern revival of the *Non-Graphical ClamAV Antivirus Solution for Mac OS X* originally written by [killdash9](https://github.com/killdash9/MacClam). As the original project (written in 2015 for Intel Macs) failed to compile on Apple Silicon, **MacClam64** was created as a free, open-source, and native alternative to ClamXAV.
 
@@ -29,7 +29,6 @@ Open your Terminal and run the following command:
 curl -fsSL https://raw.githubusercontent.com/rastanCH/MacClam64/main/MacClam64.sh | bash
 ```
 Note: You may need to enter your administrator password to install Homebrew dependencies.
-
 ### Note for macOS Users:
 If the automatic Homebrew installation fails with a "sudo access" error, please install Homebrew manually first by running:
 ```bash
@@ -44,7 +43,7 @@ Upon first run, macOS may block the scanner and show pop-ups asking for permissi
 1. Go to System Settings > Privacy & Security > Full Disk Access.
 2. Click the « + » button and add the following binaries:
 	- ~/MacClam64/opt/bin/clamdscan
-	- /opt/homebrew/bin/fswatch (or the path to your fswatch binary; to see `/opt/` folder, go to "Macintosh HD" disk, then Maj+Cmd+.)
+	- /opt/homebrew/bin/fswatch (or the path to your fswatch binary; to see ```/opt/``` folder, go to "Macintosh HD" disk, then Maj+Cmd+.)
 3. Toggle the switch to ON for both.
 4. Restart the services (or reboot your Mac):
 ```bash
@@ -59,27 +58,25 @@ Once you have granted permissions, run this command in Terminal:
 ```bash
 echo 'X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*' > ~/Downloads/eicar_test.com
 ```
-- If `eicar_test_macclam64.com` disappears from your `Downloads` folder, it works!
-- Check `~/MacClam64/quarantine/` to see the captured file.
-- IF the file remains, check the logs in `~/MacClam64/log/` or verify Full Disk Access settings.
+- If ```eicar_test_macclam64.com``` disappears from your ```Downloads``` folder, it works!
+- Check ```~/MacClam64/quarantine/``` to see the captured file.
+- IF the file remains, check the logs in ```~/MacClam64/log/```or verify Full Disk Access settings.
 
 ## Useful Commands
+### Manually update virus definitions:
+```
+~/MacClam64/opt/bin/freshclam --config-file=$HOME/MacClam64/opt/etc/freshclam.conf
+```
+### Manually scan a folder:
+```
+~/MacClam64/opt/bin/clamdscan --config-file=$HOME/MacClam64/opt/etc/clamd.conf /path/to/folder
+```
 ### Manually scan the whole computer (Home + Applications):
 Real-time monitoring only catches files created or modified after it starts. Run this to scan everything already on disk (recommended once, after granting Full Disk Access):
-```bash
+```
 ~/MacClam64/full_scan.sh
 ```
 Note: this covers `~/` (Home) and `/Applications`, not system folders like `/System` or `/usr` — those are protected by macOS (SIP) and not writable by malware, and `clamd` runs as your user, not root, so it can't read other accounts' files anyway.
-
-### Manually update virus definitions:
-```bash
-~/MacClam64/opt/bin/freshclam --config-file=~/MacClam64/opt/etc/freshclam.conf
-```
-### Manually scan a folder:
-```bash
-~/MacClam64/opt/bin/clamdscan --config-file=~/MacClam64/opt/etc/clamd.conf 
-```
-Note to beginners: To use this command, copy-paste it, then add (drop) the folder you want to analyse in Terminal. Careful: there *is* a space after `/clamd.conf `.
 
 ### Uninstall:
 ```
@@ -90,10 +87,10 @@ rm -rf ~/MacClam64 ~/Library/LaunchAgents/com.macclam64.*
 ```
 
 ## Project Structure
-- `~/MacClam64/opt/`: Compiled binaries and libraries.
-- `~/MacClam64/quarantine/`: Isolated suspicious files.
-- `~/MacClam64/log/`: Activity logs.
-- `~/Library/LaunchAgents/com.macclam64.*.plist`: System startup services.
+- ```~/MacClam64/opt/```: Compiled binaries and libraries.
+- ```~/MacClam64/quarantine/```: Isolated suspicious files.
+- ```~/MacClam64/log/```: Activity logs.
+- ```~/Library/LaunchAgents/com.macclam64.*.plist```: System startup services.
 
 ## License
 This project is distributed under the MIT License. See LICENSE.txt.
