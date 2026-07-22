@@ -171,7 +171,7 @@ cd "$HOME"
   -e "$HOME/MacClam64/quarantine" \
   -e "$HOME/MacClam64/log" \
   -e "$HOME/MacClam64/src" \
-  "$HOME" "/Applications" | while IFS= read -r line; do "$HOME/MacClam64/scaniffile" "$line"; done
+  "$HOME" "/Applications" | while IFS= read -r line; do "$HOME/MacClam64/scaniffile" "\$line"; done
 EOFMONITOR
 chmod +x "$INSTALL_DIR/start_monitoring.sh"
 
