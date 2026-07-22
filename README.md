@@ -63,20 +63,23 @@ echo 'X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*' > ~/
 - IF the file remains, check the logs in ```~/MacClam64/log/```or verify Full Disk Access settings.
 
 ## Useful Commands
-### Manually update virus definitions:
-```
-~/MacClam64/opt/bin/freshclam --config-file=$HOME/MacClam64/opt/etc/freshclam.conf
-```
-### Manually scan a folder:
-```
-~/MacClam64/opt/bin/clamdscan --config-file=$HOME/MacClam64/opt/etc/clamd.conf /path/to/folder
-```
 ### Manually scan the whole computer (Home + Applications):
 Real-time monitoring only catches files created or modified after it starts. Run this to scan everything already on disk (recommended once, after granting Full Disk Access):
-```
+```bash
 ~/MacClam64/full_scan.sh
 ```
 Note: this covers `~/` (Home) and `/Applications`, not system folders like `/System` or `/usr` — those are protected by macOS (SIP) and not writable by malware, and `clamd` runs as your user, not root, so it can't read other accounts' files anyway.
+
+### Manually scan a folder:
+```bash
+~/MacClam64/opt/bin/clamdscan --config-file=$HOME/MacClam64/opt/etc/clamd.conf 
+```
+Note: In order to make this command works, copy-paste it in Terminal, mind the space after it, and add the path to the folder you wish to scan (or drop it in Termina).
+
+### Manually update virus definitions:
+```bash
+~/MacClam64/opt/bin/freshclam --config-file=$HOME/MacClam64/opt/etc/freshclam.conf
+```
 
 ### Uninstall:
 ```
